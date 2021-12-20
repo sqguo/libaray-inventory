@@ -19,6 +19,11 @@ def dedupe_bibnum(bibnum):
     unique_bibnums.add(bibnum)
     return True
 
+def has_bibnum(bibnum):
+    if bibnum in unique_bibnums:
+        return True
+    return False
+
 def dedupe_isbn(isbn):
     global unique_isbns
     if isbn in unique_isbns:
