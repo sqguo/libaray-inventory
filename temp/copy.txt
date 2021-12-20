@@ -1,0 +1,20 @@
+CREATE TABLE `Books` (
+  `bookID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `authorID` mediumint unsigned DEFAULT NULL,
+  `publisherID` mediumint unsigned DEFAULT NULL,
+  `publicationYear` year DEFAULT NULL,
+  `publicationMonth` decimal(2,0) DEFAULT NULL,
+  `publicationDay` decimal(2,0) DEFAULT NULL,
+  `numPages` mediumint unsigned DEFAULT NULL,
+  `languageCode` char(13) DEFAULT NULL,
+  PRIMARY KEY (`bookID`),
+  KEY `authorID` (`authorID`),
+  KEY `publisherID` (`publisherID`),
+  KEY `languageCode` (`languageCode`),
+  CONSTRAINT `Books_ibfk_1` FOREIGN KEY (`authorID`) REFERENCES `Authors` (`authorID`),
+  CONSTRAINT `Books_ibfk_2` FOREIGN KEY (`publisherID`) REFERENCES `Publishers` (`publisherID`),
+  CONSTRAINT `Books_ibfk_3` FOREIGN KEY (`languageCode`) REFERENCES `Languages` (`languageCode`),
+  CONSTRAINT `Books_chk_1` CHECK (((`publicationMonth` > 0) and (`publicationMonth` <= 12))),
+  CONSTRAINT `Books_chk_2` CHECK (((`publicationDay` > 0) and (`publicationDay` <= 31)))
+) ENGINE=InnoDB AUTO_INCREMENT=3004 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
