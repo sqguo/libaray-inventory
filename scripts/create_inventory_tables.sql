@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS LibraryInventory (
 CREATE TABLE IF NOT EXISTS BibNumISBNs (
     ISBN13 decimal(13) ZEROFILL,
     bibNum decimal(7) NOT NULL,
-    PRIMARY KEY (ISBN13),
+    PRIMARY KEY (ISBN13, bibNum),
     FOREIGN KEY (bibNum) REFERENCES LibraryInventory(bibNum),
     CHECK(ISBN13 >= 0)
 );
@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS BibNumSubjects (
 CREATE TABLE IF NOT EXISTS BibNumBarCodes (
     ItemBarcode decimal(13) ZEROFILL,
     bibNum decimal(7),
+    callNumber varchar(60),
     PRIMARY KEY (ItemBarcode),
     FOREIGN KEY (bibNum) REFERENCES LibraryInventory(bibNum),
     CHECK(ItemBarcode >= 0)

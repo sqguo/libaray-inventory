@@ -1,6 +1,7 @@
 
 import csv
 import isbnlib
+from datetime import datetime
 
 # derived from 
 # https://stackoverflow.com/questions/11379300/csv-reader-behavior-with-none-and-empty-string
@@ -134,14 +135,24 @@ def parse_lib_isbns(isbns):
     return isbn13s
 
 def parse_lib_date(raw):
-    nums = raw.split('/')
-    if santitize_year(nums[2]) == None:
-        print("ERROR", raw)
-    if santitize_month(nums[0]) == None:
-        print("ERROR", raw)
-    if santitize_day(nums[1]) == None:
-        print("ERROR", raw)
-    return nums[2]+"-"+nums[0]+"-"+nums[1]
+    return datetime.strptime(raw, '%m/%d/%Y')
+
+def parse_lib_publication_year(raw):
+    nums = raw.split()
+    try:
+        firstIndex = 0
+        for i, c in enumerate(nums[0]):
+            if c.isdigit():
+                firstIndex = i
+                break
+        maybeyear = nums[0][firstIndex:firstIndex+4]
+        return santitize_year(maybeyear)
+    except:
+        return None
+
+def parse_checkout_datetime(raw):
+    return datetime.strptime(raw, '%m/%d/%Y %H:%M:%S %p')
+
 
 
 

@@ -1,12 +1,13 @@
 import mysql.connector
-from load_goodreads import MIN_SQL_OPERATION_ROW_INDEX
-from utility_common import dictDBReader, log_warning, log_error, csvDBReader, santitize_userID
+from utility_common import dictDBReader, log_warning, log_error, csvDBReader, santitize_isbn13, santitize_userID
 from utility_db import close_db, connect_db, load_data, load_script
+from utility_deduper import dedupe_isbn
+from utility_mapper import map_title_ISBN
 import signal
 import sys
 
 # environment constants
-INVENTORY_FILE_PATH = ['./data/book1-100k.csv',
+GOODREADS_FILE_PATH = ['./data/book1-100k.csv',
                        './data/book100k-200k.csv',
                        './data/book200k-300k.csv',
                        './data/book300k-400k.csv',
@@ -38,15 +39,17 @@ REVIEWS_FILE_PATH = ['./data/user_rating_0_to_1000.csv',
                      './data/user_rating_6000_to_11000.csv']
 REVIEWS_SQL_SCRIPT_PATH = './scripts/create_reviews_tables.sql'
 
+MIN_SQL_OPERATION_ROW_INDEX = 0
 
-
-COLUMN_NAME = 'name'
 COLUMN_USER_ID = 0
 COLUMN_REVIEWED_TITLE = 1
 COLUMN_USER_RATING = 2
 
+COLUMN_GOODREADS_NAME = 'name'
+COLUMN_GOODREADS_ISBN = 'isbn'
+
 REVIEW_TYPES = {
-    "This user doesn't have any rating": 0,
+    "This user doesn't have any rating": None,
     'did not like it': 1, 
     'it was ok': 2,
     'liked it': 3, 
@@ -56,40 +59,24 @@ REVIEW_TYPES = {
 
 SPACING_SQL_OPERATION = 5000
 
-
-
-# initialization
-connect_db()
-
-# create the tables
-load_script(REVIEWS_SQL_SCRIPT_PATH)
-print("...created reviews tables")
-
 row_counter = 0
 completed_rows = 0
 
-all_titles = dict()
 rows_ratings = []
 
-
-
-def signal_handler(sig, frame):
+def log_current_status():
     print("ROWS PARSED: ", row_counter)
     print("ROWS COMPLETED: ", completed_rows)
+
+def signal_handler(sig, frame):
+    log_current_status()
     print('...exiting gracefully')
     sys.exit(0)
-
 signal.signal(signal.SIGINT, signal_handler)
 
 
-def handle_title(column_title):
-    title_key = column_title.lower()
-    bookID = all_titles.get(title_key)
-    if not bookID:
-        all_titles[title_key] = row_counter
-
-
 sql_ratings = ("INSERT INTO BooksUserRatings (bookID, userID, rating) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE rating = VALUES(rating)")
+
 def flush(force=False):
     global rows_ratings
     global completed_rows
@@ -106,48 +93,65 @@ def flush(force=False):
         print("~~ loader heartbeat ~~~")
 
     
+def preload_goodreads_keys():
+    for csvfile in GOODREADS_FILE_PATH:
+        with open(csvfile, newline='', encoding='utf-8') as book_file:
+            csvreader = dictDBReader(book_file)
+            for row in csvreader:
+                isbn = None
+                # an ISBN and title is required
+                if row[COLUMN_GOODREADS_ISBN]:
+                    isbn = santitize_isbn13(row[COLUMN_GOODREADS_ISBN])
+                if not isbn or not row[COLUMN_GOODREADS_NAME]:
+                    continue
+                # ensure isbn key is unique
+                isunique1 = dedupe_isbn(isbn)
+                if not isunique1:
+                    continue
+                map_title_ISBN(row[COLUMN_GOODREADS_NAME], isbn)
+    print("...mapped GoodReads keys")
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-for csvfile in INVENTORY_FILE_PATH:
-    with open(csvfile, newline='', encoding='utf-8') as book_file:
-        csvreader = dictDBReader(book_file)
-        for row in csvreader:
-            row_counter+=1
-            if row[COLUMN_NAME]:
-                handle_title(row[COLUMN_NAME])
-            # end of for each record
-    # end of for each file
-print("...mapped all titles")
-row_counter = 0
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def load_reviews():
+    global row_counter
+    global rows_ratings
+    for csvfile in REVIEWS_FILE_PATH:
+        with open(csvfile, newline='', encoding='utf-8') as review_file:
+            csvreader = csvDBReader(review_file)
+            next(csvreader, None)
+            for row in csvreader:
+                row_counter+=1
+                if row[COLUMN_USER_RATING] and row[COLUMN_USER_ID]:
+                    rating = REVIEW_TYPES.get(row[COLUMN_USER_RATING])
+                    isbnset = map_title_ISBN(row[COLUMN_REVIEWED_TITLE])
+                    userID = santitize_userID(row[COLUMN_USER_ID])
+                    if rating and userID:
+                        for isbn in isbnset:
+                            rows_ratings.append((
+                                isbn,
+                                userID,
+                                rating
+                            ))
+                flush()
+                # end of for each record
+        # end of for each file
+    flush(force=True)
 
 
-rows_added = 0
-for csvfile in REVIEWS_FILE_PATH:
-    with open(csvfile, newline='', encoding='utf-8') as review_file:
-        csvreader = csvDBReader(review_file)
-        next(csvreader, None)
-        for row in csvreader:
-            row_counter+=1
-            if row[COLUMN_USER_RATING] and row[COLUMN_USER_ID]:
-                rating = REVIEW_TYPES.get(row[COLUMN_USER_RATING])
-                bookID = all_titles.get(row[COLUMN_REVIEWED_TITLE].lower())
-                userID = santitize_userID(row[COLUMN_USER_ID])
-                if rating > 0 and bookID and userID:
-                    rows_ratings.append((
-                        bookID,
-                        userID,
-                        rating
-                    ))
-                    rows_added+=1
-            flush()
-            # end of for each record
-    # end of for each file
-flush(force=True)
+
+# initialization
+connect_db()
+
+# create the tables
+load_script(REVIEWS_SQL_SCRIPT_PATH)
+
+# load mappings
+preload_goodreads_keys()
+
+# load records
+load_reviews()
 
 # cleanup
 close_db()
 print("...done")
-print("NEW ROWS: ", rows_added)
-print("ROWS COMPLETED: ", completed_rows, "/", row_counter)
+log_current_status()

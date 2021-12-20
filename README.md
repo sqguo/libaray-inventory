@@ -1,5 +1,6 @@
 ## 20-books
-Group 57 - sqguo
+Group 57<br/>
+members: sqguo
 
 ### Loading Data
 
@@ -17,5 +18,5 @@ Run the loading script using python3:
 ```sh
 python ./load_data.py
 ```
-
-
+_This takes about 60 minutes to run on an unloaded server.<br/>
+Do not wait till the marking deadline to create your version of the dataset._

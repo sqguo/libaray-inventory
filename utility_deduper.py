@@ -10,6 +10,7 @@ unique_bibnums = set()
 unique_location_codes = set()
 unique_collection_codes = set()
 unique_type_codes = set()
+unique_language_codes = set()
 
 def dedupe_bibnum(bibnum):
     global unique_bibnums
@@ -18,12 +19,11 @@ def dedupe_bibnum(bibnum):
     unique_bibnums.add(bibnum)
     return True
 
-def dedupe_isbns(isbnset):
+def dedupe_isbn(isbn):
     global unique_isbns
-    for isbn in isbnset:
-        if isbn in unique_isbns:
-            return False
-        unique_isbns.add(isbn)
+    if isbn in unique_isbns:
+        return False
+    unique_isbns.add(isbn)
     return True
 
 def dedupe_priming_codes():
@@ -51,4 +51,14 @@ def dupe_type_code(code):
     if code in unique_type_codes:
         return code
     return CODE_UNKNOWN
+
+def dupe_language_code(code, rows_languages=[]):
+    global unique_language_codes
+    language_key = code.upper()
+    if not language_key in unique_language_codes:
+        unique_language_codes.add(language_key)
+        rows_languages.append((language_key,))
+    return language_key
+
+
     
