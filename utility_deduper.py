@@ -36,6 +36,7 @@ def dedupe_priming_codes():
     unique_location_codes = set([dup[0] for dup in fetch_data(sql_locations)])
     unique_collection_codes= set([dup[0] for dup in fetch_data(sql_collections)])
     unique_type_codes = set([dup[0] for dup in fetch_data(sql_types)])
+    print("...primed ILS codes")
 
 def dupe_location_code(code):
     if code in unique_location_codes:

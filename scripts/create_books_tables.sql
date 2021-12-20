@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS Languages (
 
 CREATE TABLE IF NOT EXISTS Books (
     ISBN13 decimal(13) ZEROFILL,
-    title varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    title varchar(1250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     authorID MEDIUMINT UNSIGNED,
     publisherID MEDIUMINT UNSIGNED,
     publicationYear decimal(4),

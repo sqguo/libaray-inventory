@@ -40,6 +40,7 @@ REVIEWS_FILE_PATH = ['./data/user_rating_0_to_1000.csv',
 REVIEWS_SQL_SCRIPT_PATH = './scripts/create_reviews_tables.sql'
 
 MIN_SQL_OPERATION_ROW_INDEX = 0
+SPACING_SQL_OPERATION = 5000
 
 COLUMN_USER_ID = 0
 COLUMN_REVIEWED_TITLE = 1
@@ -57,8 +58,6 @@ REVIEW_TYPES = {
     'it was amazing': 5
 }
 
-SPACING_SQL_OPERATION = 5000
-
 row_counter = 0
 completed_rows = 0
 
@@ -75,7 +74,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 
-sql_ratings = ("INSERT INTO BooksUserRatings (bookID, userID, rating) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE rating = VALUES(rating)")
+sql_ratings = ("INSERT INTO BooksUserRatings (ISBN13, userID, rating) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE rating = VALUES(rating)")
 
 def flush(force=False):
     global rows_ratings
@@ -83,13 +82,17 @@ def flush(force=False):
     if not force and row_counter % SPACING_SQL_OPERATION != 0:
         return
     elif row_counter > MIN_SQL_OPERATION_ROW_INDEX:
+        print(".", end="", flush=True)
         s1 = load_data(sql_ratings, rows_ratings, "RATI_"+str(row_counter))
         if not s1:
             log_warning("WARNING_STOPPED_AT_"+str(row_counter))
             sys.exit(0)
+        print(".", end="", flush=True)
     rows_ratings = []
     completed_rows = row_counter
     if (completed_rows % 50000 == 0):
+        print("..ok", end="\r\n", flush=True)
+    if (completed_rows % 250000 == 0):
         print("~~ loader heartbeat ~~~")
 
     
@@ -125,7 +128,7 @@ def load_reviews():
                     rating = REVIEW_TYPES.get(row[COLUMN_USER_RATING])
                     isbnset = map_title_ISBN(row[COLUMN_REVIEWED_TITLE])
                     userID = santitize_userID(row[COLUMN_USER_ID])
-                    if rating and userID:
+                    if rating and userID and isbnset:
                         for isbn in isbnset:
                             rows_ratings.append((
                                 isbn,

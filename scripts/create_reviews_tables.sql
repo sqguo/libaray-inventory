@@ -1,11 +1,11 @@
 -- DROP TABLE IF EXISTS BooksUserRatings;
 
 CREATE TABLE IF NOT EXISTS BooksUserRatings (
-    bookID MEDIUMINT UNSIGNED,
+    ISBN13 decimal(13) ZEROFILL,
     userID decimal(6),
     rating TINYINT UNSIGNED NOT NULL,
-    PRIMARY KEY (bookID, userID),
-    FOREIGN KEY (bookID) REFERENCES Books(bookID),
+    PRIMARY KEY (ISBN13, userID),
+    FOREIGN KEY (ISBN13) REFERENCES Books(ISBN13),
     CHECK(rating >= 1 AND rating <= 5),
     CHECK(userID >= 1)
 );

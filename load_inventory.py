@@ -52,7 +52,7 @@ COLUMN_ITEM_LOCATION = 10
 COLUMN_REPORT_DATE = 11
 COLUMN_ITEM_COUNT = 12
 
-MIN_SQL_OPERATION_ROW_INDEX = 0
+MIN_SQL_OPERATION_ROW_INDEX = 1000
 SPACING_SQL_OPERATION = 1000
 NO_INSERTION_BEFORE_INDEX = 0
 
@@ -134,7 +134,6 @@ def flush(force=False):
     if (completed_rows % 50000 == 0):
         print("~~ loader heartbeat ~~~")
 
-
 def insert_extra_book_record(row, extraisbnset):
     global rows_extra_books
     if not row[COLUMN_TITLE]:
@@ -152,13 +151,15 @@ def insert_extra_book_record(row, extraisbnset):
     if row[COLUMN_PUBLICATION_YEAR]:
         year = parse_lib_publication_year(row[COLUMN_PUBLICATION_YEAR])
     for isbn13 in extraisbnset:
-        rows_extra_books.append((
-            isbn13,
-            title,
-            authorID,
-            publisherID,
-            year
-        ))
+        isunique = dedupe_isbn(isbn13)
+        if isunique:
+            rows_extra_books.append((
+                isbn13,
+                title,
+                authorID,
+                publisherID,
+                year
+            ))
 
 
 def preload_goodreads_keys():

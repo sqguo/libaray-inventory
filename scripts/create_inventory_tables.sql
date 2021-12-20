@@ -10,6 +10,7 @@
 -- ALTER TABLE Publishers MODIFY COLUMN publisherName varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin UNIQUE NOT NULL;
 -- ALTER TABLE Subjects MODIFY COLUMN subjectName varchar(255) NOT NULL UNIQUE;
 -- ALTER TABLE LibraryInventory MODIFY COLUMN itemCount MEDIUMINT UNSIGNED NOT NULL DEFAULT 0;
+-- ALTER TABLE Books MODIFY COLUMN title varchar(1250) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL;
 
 CREATE TABLE IF NOT EXISTS LibraryInventory (
     bibNum decimal(7),
