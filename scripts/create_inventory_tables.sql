@@ -59,4 +59,8 @@ CREATE TABLE IF NOT EXISTS LibraryCheckouts (
     FOREIGN KEY (ItemBarcode) REFERENCES BibNumBarCodes(ItemBarcode)
 );
 
+CREATE OR REPLACE VIEW RecentLibraryCheckouts AS 
+    SELECT ItemBarcode, MAX(checkoutDate) AS mostRecentCheckoutDate
+    FROM LibraryCheckouts GROUP BY ItemBarcode;
+
 
