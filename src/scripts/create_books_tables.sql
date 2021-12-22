@@ -64,4 +64,7 @@ CREATE TABLE IF NOT EXISTS BooksRatings (
     FOREIGN KEY (ISBN13) REFERENCES Books(ISBN13)
 );
 
+-- CREATE INDEX idx1_books_title ON Books(title);
+CREATE INDEX idx2_books_publicationDate ON Books(publicationYear, publicationMonth, publicationDay);
+
 

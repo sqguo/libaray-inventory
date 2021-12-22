@@ -4,6 +4,20 @@ members: sqguo
 <br/>
 <br/>
 
+### Prerequisites
+Navigate to the project directory:
+```sh
+cd ./src
+```
+
+Install all dependencies:
+```sh
+pip install -r ./requirements.txt
+```
+<br/>
+<br/>
+
+
 ### Loading Data
 Download all CSV files to the following path:
 ```sh
@@ -23,9 +37,25 @@ python ./load_reviews.py
 python ./load_inventory.py
 python ./load_checkouts.py
 ```
-_Important:_ the scripts must be run in the same order as specified above. <br/>
-_This takes about 60 minutes to run on an unloaded server.<br/>
+_Important:_ the script must be run in the same order as specified above. <br/>
+
+<br/>
+<br/>
+
+### Loading Data (Alternative)
+Upload parsed CSV files to marmoset servers:
+```sh
+/var/lib/mysql-files/Group57/
+```
+
+In the mysql console run:
+```sh
+source scripts/load_data.sql
+```
+
+_This takes about 20 minutes per table to run on an unloaded server.<br/>
 Do not wait till the marking deadline to create your version of the dataset._
+
 <br/>
 <br/>
 
@@ -42,5 +72,8 @@ Read the instructions located at:
 ```sh
 ./MANUAL.md
 ```
+
+<br/>
+<br/>
 
 ### Data Mining

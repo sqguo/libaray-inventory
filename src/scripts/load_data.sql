@@ -222,32 +222,35 @@ CREATE OR REPLACE VIEW RecentLibraryCheckouts AS
     SELECT ItemBarcode, MAX(checkoutDate) AS mostRecentCheckoutDate
     FROM LibraryCheckouts GROUP BY ItemBarcode;
 
--- SELECT '----------- LOADING FormatGroups' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_FormatGroups.csv' IGNORE INTO TABLE FormatGroups FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+-- CREATE INDEX idx1_books_title ON Books(title);
+CREATE INDEX idx2_books_publicationDate ON Books(publicationYear, publicationMonth, publicationDay);
 
--- SELECT '----------- LOADING FormatSubGroups' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_FormatSubGroups.csv' IGNORE INTO TABLE FormatSubGroups FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+SELECT '----------- LOADING FormatGroups' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_FormatGroups.csv' IGNORE INTO TABLE FormatGroups FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
--- SELECT '----------- LOADING CategoryGroups' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_CategoryGroups.csv' IGNORE INTO TABLE CategoryGroups FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+SELECT '----------- LOADING FormatSubGroups' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_FormatSubGroups.csv' IGNORE INTO TABLE FormatSubGroups FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
--- SELECT '----------- LOADING CategorySubGroups' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_CategorySubGroups.csv' IGNORE INTO TABLE CategorySubGroups FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+SELECT '----------- LOADING CategoryGroups' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_CategoryGroups.csv' IGNORE INTO TABLE CategoryGroups FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
--- SELECT '----------- LOADING CodeDictionary' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_CodeDictionary.csv' IGNORE INTO TABLE CodeDictionary FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+SELECT '----------- LOADING CategorySubGroups' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_CategorySubGroups.csv' IGNORE INTO TABLE CategorySubGroups FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
--- SELECT '----------- LOADING ItemTypes' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_ItemTypes.csv' IGNORE INTO TABLE ItemTypes FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+SELECT '----------- LOADING CodeDictionary' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_CodeDictionary.csv' IGNORE INTO TABLE CodeDictionary FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
--- SELECT '----------- LOADING ItemCollections' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_ItemCollections.csv' IGNORE INTO TABLE ItemCollections FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+SELECT '----------- LOADING ItemTypes' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_ItemTypes.csv' IGNORE INTO TABLE ItemTypes FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
--- SELECT '----------- LOADING ItemLocations' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_ItemLocations.csv' IGNORE INTO TABLE ItemLocations FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+SELECT '----------- LOADING ItemCollections' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_ItemCollections.csv' IGNORE INTO TABLE ItemCollections FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
--- SELECT '----------- LOADING Authors' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/Authors.csv' IGNORE INTO TABLE Authors FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+SELECT '----------- LOADING ItemLocations' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_ItemLocations.csv' IGNORE INTO TABLE ItemLocations FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+
+SELECT '----------- LOADING Authors' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/Authors.csv' IGNORE INTO TABLE Authors FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
 SELECT '----------- LOADING Publishers' as '';
 LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_Publishers.csv' IGNORE INTO TABLE Publishers FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
@@ -267,11 +270,11 @@ LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_BooksRatings.csv' IG
 SELECT '----------- LOADING BooksUserRatings' as '';
 LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_BooksUserRatings.csv' IGNORE INTO TABLE BooksUserRatings FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
--- SELECT '----------- LOADING LibraryInventory' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_LibraryInventory.csv' IGNORE INTO TABLE LibraryInventory FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+SELECT '----------- LOADING LibraryInventory' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_LibraryInventory.csv' IGNORE INTO TABLE LibraryInventory FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
--- SELECT '----------- LOADING BibNumISBNs' as '';
--- LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_BibNumISBNs.csv' IGNORE INTO TABLE BibNumISBNs FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
+SELECT '----------- LOADING BibNumISBNs' as '';
+LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_BibNumISBNs.csv' IGNORE INTO TABLE BibNumISBNs FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
 
 SELECT '----------- LOADING BibNumSubjects' as '';
 LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_BibNumSubjects.csv' IGNORE INTO TABLE BibNumSubjects FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;
