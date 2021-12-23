@@ -77,3 +77,11 @@ Read the instructions located at:
 <br/>
 
 ### Data Mining
+To run the data mining SQL query run:
+```sh
+source scripts/data_mining.sql
+```
+The data is located in the folder
+```sh
+DM_results
+```

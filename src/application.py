@@ -10,9 +10,13 @@ from utility_pretty_print import pretty_print_Barcodes, pretty_print_books, pret
 from utility_ui import error_occured, force_choice, force_valid_response, print_success, print_warning, request_multiple_selection_and_validate_response, print_centered, print_new_page, yes_or_no
 from utility_validator import validate_book_name, validate_day, validate_int, validate_isbn, validate_language, validate_month, validate_numpages, validate_review_aggscore, validate_string, validate_year
 
-
+# used to indicate the currently selected book
 selected_books = []
+
+# indicates the logged in user
 userid = None
+
+# unused
 selected_bibnumber = None
 selected_barcode = None
 
@@ -24,6 +28,7 @@ def exit():
     print_new_page("~~ Goodbye ~~")
     sys.exit(0)
 
+# homepage will allow redirects to other pages
 def homepage():
     print_new_page("~~ Homepage ~~")
     next_location = force_choice([
@@ -37,6 +42,7 @@ def homepage():
     ])
     return next_location
 
+# this is the entry point of the client
 def main():
     print_new_page("~~ Seattle Library Client Started ~~")
     next_location = homepage
@@ -50,6 +56,7 @@ def lookup_book_page(nextpage=None, findone=False):
     print_new_page("~~ Lookup Page ~~")
     selected_books = []
     do_look_up = True
+    # when appropriate, force the user to find a single book
     while do_look_up or (findone and len(selected_books) != 1):
         print("define your search criterias:")
         specifications = request_multiple_selection_and_validate_response([
@@ -75,7 +82,10 @@ def lookup_book_page(nextpage=None, findone=False):
             constants.COLUMN_BOOKSRATINGSSUMMARY_AVERAGERATINGS: make_where_greater_float,
             constants.COLUMN_BOOKS_NUMPAGES: make_where_greater_float
         }
+        # call the helper to create sql code
         selected_books = do_select_books(selection=[], conditions=specifications, conditions_specials=specials)
+
+        # print the results
         if len(selected_books) == 0: 
             print_warning("zero results found :(")
             if not findone: do_look_up = yes_or_no("try searching again?")
@@ -90,6 +100,7 @@ def lookup_book_page(nextpage=None, findone=False):
     return homepage
 
 def publish_book_page():
+    # ask the user for each criteria
     print_new_page("~~ Book Creation Page ~~")
     print("lets start by entering some required information for your book...")
     isbn13 = force_valid_response("ISBN13 (or ISBN10)", validate_isbn)
@@ -151,6 +162,8 @@ def checkout_page():
     if len(barcode_rows) == 0:
         print_warning("the item barcode you entered in invalid")
         return homepage
+
+    # insert the record if everything works out
     success = do_insert_checkout(barcode)
     if not success: error_occured()
     print()

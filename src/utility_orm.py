@@ -1,6 +1,7 @@
 import constants
 from utility_db import fetch_data_dictionary, insert_data, insert_data_many
 
+# constructs a single sql query to find recommanded books
 def make_recommandation(userID):
     # 5400,
     algorithm = " WITH mylikedISBNs AS (SELECT ISBN13 FROM BooksUserRatings WHERE userID = {} AND rating >= 4), "
@@ -16,6 +17,7 @@ def make_recommandation(userID):
     rows = fetch_data_dictionary(algorithm.format(userID, userID, userID))
     return list(rows)
 
+# select books based on [none, multiple] conditions
 def do_select_books(selection=[], conditions=[], conditions_specials=[]):
     book_cluster_sqls = dict()
     for table in constants.BOOKS_CLUSTER_DESIGN:
