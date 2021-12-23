@@ -222,6 +222,13 @@ CREATE OR REPLACE VIEW RecentLibraryCheckouts AS
     SELECT ItemBarcode, MAX(checkoutDate) AS mostRecentCheckoutDate
     FROM LibraryCheckouts GROUP BY ItemBarcode;
 
+CREATE OR REPLACE VIEW BibNumRatingSummary AS 
+    SELECT bibNum, 
+        SUM(averageRating*numRatings)/SUM(numRatings) AS bibNumRating 
+    FROM BibNumISBNs LEFT JOIN BooksRatingsSummary USING(ISBN13) 
+    WHERE averageRating IS NOT NULL AND numRatings > 0
+    GROUP BY bibNum;
+
 -- CREATE INDEX idx1_books_title ON Books(title);
 CREATE INDEX idx2_books_publicationDate ON Books(publicationYear, publicationMonth, publicationDay);
 
