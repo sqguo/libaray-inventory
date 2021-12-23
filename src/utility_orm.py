@@ -26,6 +26,7 @@ def do_select_books(selection=[], conditions=[], conditions_specials=[]):
     for table, sql in book_cluster_sqls.items():
         if not sql == None:
             book_cluster_filtered_sqls[table] = sql
+    # create the with clause mapping and assign unique identifiers
     with_clause, with_clause_name_mapping = make_common_expression(book_cluster_filtered_sqls)
     no_book_cluster = len(book_cluster_filtered_sqls) == 0
     book_cluster_name_mapping = dict()
@@ -34,6 +35,7 @@ def do_select_books(selection=[], conditions=[], conditions_specials=[]):
             book_cluster_name_mapping[table] = with_clause_name_mapping[table]
         else:
             book_cluster_name_mapping[table] = table
+    # create join expression depending on whether the idenfier is used in the with clause
     join_statement = make_inner_join_expression(book_cluster_name_mapping)
     final_statement = " ".join([with_clause, join_statement, "LIMIT 10"])
     rows = fetch_data_dictionary(final_statement)
@@ -66,6 +68,7 @@ def do_insert_book(isbn13, title, authorName, publisherName, numPages, languageC
     if len(list(book_rows)) > 0: return (False, False)
     authorID = None
     publisherID = None
+    # ensure the publisher and author exists, if not add them
     if authorName is not None:
         authorID = do_fetch_author_id(authorName)
         if authorID == None: authorID = do_insert_author(authorName)
@@ -139,12 +142,14 @@ def do_insert_checkout(barcode):
 
 
 def selector_single_table(table, selection=[], conditions={}, conditions_specials={}):
+    # contructs the select and where clause of a single table
     available_cols = set(constants.DATABASE_DESIGN[table])
     filtered_selections = available_cols.intersection(set(selection))
     filtered_conditions = [cond for cond in conditions if (cond in available_cols)]
     if len(filtered_conditions) == 0:
         return None
     filtered_condition_strings = []
+    # create where clause and append
     for filtered_cond in filtered_conditions:
         col_and_cond = (filtered_cond, conditions[filtered_cond])
         where_string = make_where_default(col_and_cond) if conditions_specials.get(filtered_cond) == None else conditions_specials[filtered_cond](col_and_cond)

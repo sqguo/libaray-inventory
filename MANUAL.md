@@ -12,7 +12,7 @@ borrow a book                  b
 publish a book                 p
 review a book                  r
 checkout a book                c
-recommand a book               e
+recommend a book               e
 exit                           q
 ```
 The user may select any option by typing in their respective character key, then press ENTER. 
@@ -139,11 +139,11 @@ are you sure you want to publish the book paul ward's dumpster fire database ? (
 <br/>
 <br/>
 
-### Recommanding A Book
-The application has the capability to recommand a user new books based on his/her existing ratings of books. The recommandation engine works by finding books that the user has not read before, and that is highly liked by users who share similar taste to the current user. Recommandation weighting depends both on the degree of overlap of the taste of similar users as well as the number of similar users who enjoyed a certain book that may be recommanded. The application will only show the top 20 recommandations. Here is an example of the recommandation engine in action:
+### recommending A Book
+The application has the capability to recommend a user new books based on his/her existing ratings of books. The recommendation engine works by finding books that the user has not read before, and that is highly liked by users who share similar taste to the current user. recommendation weighting depends both on the degree of overlap of the taste of similar users as well as the number of similar users who enjoyed a certain book that may be recommended. The application will only show the top 20 recommendations. Here is an example of the recommendation engine in action:
 ```sh
 Enter your userId: 10986
-here are some of the books you liked in the past, we will find recommandations based on these
+here are some of the books you liked in the past, we will find recommendations based on these
 --------------------------------------------------------------------------------------------------------------------------
 ISBN13              Your Rating    Title
 9780030957673       4              The Return of the Native
@@ -157,9 +157,9 @@ ISBN13              Your Rating    Title
 9780140186222       5              The Trial
 9780140281637       4              Heart of Darkness
 --------------------------------------------------------------------------------------------------------------------------
-looking for recommandations, please wait...
+looking for recommendations, please wait...
 
-:) based on books you really liked, here is our top recommandations:
+:) based on books you really liked, here is our top recommendations:
 --------------------------------------------------------------------------------------------------------------------------
 ISBN13         Title                        Author              Publisher           Score   Language  Pages     Publication 
 9780060740450  One Hundred Years of Sol...  Gabriel García Már  Harper Perennial    4.07    ENG       458       20 Jan 2004

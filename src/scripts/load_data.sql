@@ -231,6 +231,7 @@ CREATE OR REPLACE VIEW BibNumRatingSummary AS
 
 -- CREATE INDEX idx1_books_title ON Books(title);
 CREATE INDEX idx2_books_publicationDate ON Books(publicationYear, publicationMonth, publicationDay);
+CREATE INDEX idx3_call_number ON BibNumBarCodes(callNumber);
 
 SELECT '----------- LOADING FormatGroups' as '';
 LOAD DATA INFILE '/var/lib/mysql-files/Group57/ece356_sqguo_FormatGroups.csv' IGNORE INTO TABLE FormatGroups FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES;

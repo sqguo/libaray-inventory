@@ -51,6 +51,7 @@ def main():
         next_location = next_location()
     return
 
+# search for a book
 def lookup_book_page(nextpage=None, findone=False):
     global selected_books
     print_new_page("~~ Lookup Page ~~")
@@ -124,6 +125,7 @@ def borrow_book_page():
     print_new_page("~~ Borrow A Book Page ~~")
     bibnumber = None
     know_bibnum = yes_or_no("Do you know the Library BibNumber of the Book You want to Borrow?")
+    # make sure we have the bibnum before next step
     if not know_bibnum:
         print("Lets check if the book you want to borrow is in our collection...")
         isbn13 = force_valid_response("ISBN13 (or ISBN10)", validate_isbn)
@@ -142,6 +144,8 @@ def borrow_book_page():
     else:
         bibnumber = force_valid_response("BibNumber", validate_int)
     a_inventory_row, barcode_rows = do_select_inventory(bibnumber)
+
+    # allow the user to select a barcode to checkout
     if a_inventory_row is None:
         print()
         print_warning("looks like our library no longer has the book, sorry")
