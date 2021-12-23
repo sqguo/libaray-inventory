@@ -1,6 +1,20 @@
 import constants
 from utility_db import fetch_data_dictionary, insert_data, insert_data_many
 
+def make_recommandation(userID):
+    # 5400,
+    algorithm = " WITH mylikedISBNs AS (SELECT ISBN13 FROM BooksUserRatings WHERE userID = {} AND rating >= 4), "
+    algorithm = algorithm + "mylikedISBNsDups AS (SELECT ISBN13 FROM Books WHERE LOWER(title) IN (SELECT LOWER(title) FROM mylikedISBNs LEFT JOIN Books USING(ISBN13))), "
+    algorithm = algorithm + "mydislikedISBNs AS (SELECT ISBN13 FROM BooksUserRatings WHERE userID = {} AND rating <= 3),"
+    algorithm = algorithm + "mydislikedISBNsDups AS (SELECT ISBN13 FROM Books WHERE LOWER(title) IN (SELECT LOWER(title) FROM mydislikedISBNs LEFT JOIN Books USING(ISBN13))), "
+    algorithm = algorithm + "otherUsersWhoLikedmy AS (SELECT userID, COUNT(*) AS userSimilarity FROM mylikedISBNsDups LEFT JOIN BooksUserRatings USING(ISBN13) WHERE userID != {} AND rating >=4 GROUP BY userID), "
+    algorithm = algorithm + "topOtherUsersWhoLikedmy AS (SELECT * FROM otherUsersWhoLikedmy ORDER BY userSimilarity DESC LIMIT 20),"
+    algorithm = algorithm + "similarISBNs AS (SELECT ISBN13, (SUM(userSimilarity)) AS overlapscore FROM topOtherUsersWhoLikedmy LEFT JOIN BooksUserRatings USING(userID) WHERE rating >=4 and ISBN13 NOT IN (SELECT * FROM mylikedISBNsDups) and ISBN13 NOT IN (SELECT * FROM mydislikedISBNsDups) GROUP BY ISBN13), "
+    algorithm = algorithm + "ISBNsToRecommand AS (SELECT MIN(ISBN13) AS defISBN13, LOWER(title), MAX(overlapscore) as aggScore FROM similarISBNs LEFT JOIN Books USING(ISBN13) GROUP BY LOWER(title)), "
+    algorithm = algorithm + "ISBNsUniqueReomand AS (SELECT defISBN13 AS ISBN13, aggScore FROM ISBNsToRecommand ORDER BY aggScore DESC LIMIT 20) "
+    algorithm = algorithm + "SELECT * FROM ISBNsUniqueReomand LEFT JOIN Books USING (ISBN13) LEFT JOIN Authors USING(authorID) LEFT JOIN Publishers USING(publisherID) LEFT JOIN BooksRatingsSummary USING(ISBN13)"
+    rows = fetch_data_dictionary(algorithm.format(userID, userID, userID))
+    return list(rows)
 
 def do_select_books(selection=[], conditions=[], conditions_specials=[]):
     book_cluster_sqls = dict()
@@ -25,6 +39,13 @@ def do_select_books(selection=[], conditions=[], conditions_specials=[]):
 
 def do_select_user_ratings(userid):
     sql_statement1 = "WITH myratings AS (SELECT * FROM BooksUserRatings WHERE userID = {})".format(userid)
+    sql_statement2 = "SELECT ISBN13, title, rating FROM myratings LEFT JOIN Books USING(ISBN13) LIMIT 10"
+    final_statement = " ".join([sql_statement1, sql_statement2])
+    rows = fetch_data_dictionary(final_statement)
+    return list(rows)
+
+def do_select_user_ratings_good(userid):
+    sql_statement1 = "WITH myratings AS (SELECT * FROM BooksUserRatings WHERE userID = {} and rating >= 4)".format(userid)
     sql_statement2 = "SELECT ISBN13, title, rating FROM myratings LEFT JOIN Books USING(ISBN13) LIMIT 10"
     final_statement = " ".join([sql_statement1, sql_statement2])
     rows = fetch_data_dictionary(final_statement)
@@ -144,16 +165,16 @@ def selector_method(table, selection=[], conditionstings=[]):
 def make_inner_join_expression(name_mappings):
     statement1 = "SELECT * FROM "
     skip_first_row = True
-    using_statements = []
+    using_statements = ""
     for table, name in name_mappings.items():
         if skip_first_row:
-            using_statements.append(name)
+            using_statements = name
         else:
-            using_statements.append(" ".join([name, "USING", "(", constants.BOOKS_CLUSTER_FOREIGN_KEY_DESIGN[table], ")"]))
+            if table == name: using_statements = using_statements+" LEFT JOIN "
+            else: using_statements = using_statements+" INNER JOIN "
+            using_statements = using_statements+" "+" ".join([name, "USING", "(", constants.BOOKS_CLUSTER_FOREIGN_KEY_DESIGN[table], ")"])
         skip_first_row = False
-    statement2 = " INNER JOIN ".join(using_statements[:-1])
-    statement3 = " LEFT JOIN ".join([statement2, using_statements[-1]])
-    return statement1+statement3
+    return statement1+using_statements
 
 def make_common_expression(sqls={}):
     result_seq = []

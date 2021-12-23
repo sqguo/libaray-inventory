@@ -4,7 +4,7 @@ import sys
 import constants
 from colorama import init
 from utility_db import close_db, connect_db
-from utility_orm import do_insert_book, do_insert_checkout, do_insert_user_rating, do_select_barcode, do_select_inventory, do_select_inventory_with_isbn, do_select_user_ratings, make_where_greater_float, make_where_like_string, do_select_books, selector_single_table
+from utility_orm import do_insert_book, do_insert_checkout, do_insert_user_rating, do_select_barcode, do_select_inventory, do_select_inventory_with_isbn, do_select_user_ratings, do_select_user_ratings_good, make_recommandation, make_where_greater_float, make_where_like_string, do_select_books, selector_single_table
 from utility_pretty_print import pretty_print_Barcodes, pretty_print_books, pretty_print_inventory, pretty_print_inventory_with_Barcodes, pretty_print_user_ratings
 
 from utility_ui import error_occured, force_choice, force_valid_response, print_success, print_warning, request_multiple_selection_and_validate_response, print_centered, print_new_page, yes_or_no
@@ -32,6 +32,7 @@ def homepage():
         ("p", "publish a book", publish_book_page),
         ("r", "review a book", review_book_page),
         ("c", "checkout a book", checkout_page),
+        ("e", "recommand a book", recommandation_page),
         ("q", "exit", exit)
     ])
     return next_location
@@ -171,6 +172,7 @@ def review_book_page():
     return lookup_book_page(nextpage=add_review_page, findone=True)
 
 def add_review_page():
+    global userid
     print_new_page("~~ Add A Rating ~~")
     if len(selected_books) != 1 or userid == None:
         error_occured()
@@ -187,6 +189,31 @@ def add_review_page():
     success = do_insert_user_rating(userid, ISBN13, newrating)
     if success: print_success("your rating has been added")
     else: error_occured()
+    doRecomand = yes_or_no("Recommand me a book based on what I liked?")
+    if doRecomand: return recommandation_page(skipLogin=True)
+    return homepage
+
+def recommandation_page(skipLogin=False):
+    global userid
+    print_new_page("~~ Recommandation ~~")
+    if not skipLogin or userid is None:
+        print("to personalize your experience, you must have a user ID (suggested user ID: 10986)")
+        userid = force_valid_response("your userId", validate_int)
+    liked_books = do_select_user_ratings_good(userid)
+    if len(liked_books) > 0: 
+        print("here are some of the books you liked in the past, we will find recommandations based on these")
+        pretty_print_user_ratings(liked_books)
+    else: 
+        print_warning("sorry, we can't make any recommandation because you don't have any books you really liked")
+        return homepage()
+    print("looking for recommandations, please wait...")
+    recommandations = make_recommandation(userid)
+    if len(recommandations) == 0: 
+        print_warning("Sorry :( we don't have any recommandations for you, try reviewing more books first")
+    else:
+        print()
+        print_success("based on books you really liked, here is our top recommandations:")
+        pretty_print_books(recommandations)
     return homepage
 
 
